@@ -1,0 +1,251 @@
+@{
+    ViewData["Title"] = "Register";
+}
+
+@{
+    Layout = "_AuthLayout";
+}
+
+<div class="flex items-center justify-center min-h-screen bg-gray-50 bg-gray-900 p-4">
+    <div class="w-full max-w-md p-8 space-y-6 bg-white bg-gray-800 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold text-center text-black text-white">Register</h2>
+
+        <form id="registerForm" class="space-y-4" novalidate>
+            <!-- Name Field -->
+            <div>
+                <label for="name" class="block mb-1 text-black text-white font-medium">Name</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    class="w-full px-3 py-2 border border-gray-300 border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white text-black" 
+                    placeholder="Enter your full name"
+                    required
+                    minlength="2"
+                    maxlength="50"
+                    pattern="^[A-Za-z\s]+$"
+                />
+                <div id="nameError" class="mt-1 text-sm text-red-600 text-red-400 hidden">
+                    Name is required (2-50 characters, letters only)
+                </div>
+            </div>
+
+            <!-- Email Field -->
+            <div>
+                <label for="email" class="block mb-1 text-black text-white font-medium">Email</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="w-full px-3 py-2 border border-gray-300 border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white text-black" 
+                    placeholder="Enter your email"
+                    required
+                    pattern="[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                />
+                <div id="emailError" class="mt-1 text-sm text-red-600 text-red-400 hidden">
+                    Please enter a valid email address
+                </div>
+            </div>
+
+            <!-- Password Field -->
+            <div>
+                <label for="password" class="block mb-1 text-black text-white font-medium">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="w-full px-3 py-2 border border-gray-300 border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white text-black" 
+                    placeholder="Enter your password"
+                    required
+                    minlength="8"
+                    maxlength="50"
+                    pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@\$!%*?&])[A-Za-z\d@@\$!%*?&]{8,}$"
+                />
+                <div id="passwordError" class="mt-1 text-sm text-red-600 text-red-400 hidden">
+                    Password must be at least 8 characters with uppercase, lowercase, number, and special character
+                </div>
+                <div id="passwordStrength" class="mt-2">
+                    <div class="flex space-x-1">
+                        <div id="strengthBar1" class="h-1 flex-1 bg-gray-300 bg-gray-600 rounded"></div>
+                        <div id="strengthBar2" class="h-1 flex-1 bg-gray-300 bg-gray-600 rounded"></div>
+                        <div id="strengthBar3" class="h-1 flex-1 bg-gray-300 bg-gray-600 rounded"></div>
+                        <div id="strengthBar4" class="h-1 flex-1 bg-gray-300 bg-gray-600 rounded"></div>
+                    </div>
+                    <p id="strengthText" class="text-xs mt-1 text-gray-700 text-gray-300"></p>
+                </div>
+            </div>
+
+            <!-- Confirm Password Field -->
+            <div>
+                <label for="confirmPassword" class="block mb-1 text-black text-white font-medium">Confirm Password</label>
+                <input 
+                    type="password" 
+                    id="confirmPassword" 
+                    name="confirmPassword" 
+                    class="w-full px-3 py-2 border border-gray-300 border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white text-black" 
+                    placeholder="Confirm your password"
+                    required
+                />
+                <div id="confirmPasswordError" class="mt-1 text-sm text-red-600 text-red-400 hidden">
+                    Passwords do not match
+                </div>
+            </div>
+
+            <!-- Role Field -->
+            <div>
+                <label for="role" class="block mb-1 text-black text-white font-medium">Role</label>
+                <select 
+                    id="role" 
+                    name="role" 
+                    class="w-full px-3 py-2 border border-gray-300 border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white text-black"
+                    required
+                >
+                    <option value="">Select a role</option>
+                    <option value="Patient">Patient</option>
+                    <option value="Doctor">Doctor</option>
+                </select>
+                <div id="roleError" class="mt-1 text-sm text-red-600 text-red-400 hidden">
+                    Please select a role
+                </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="flex items-center">
+                <input 
+                    type="checkbox" 
+                    id="terms" 
+                    name="terms" 
+                    class="form-checkbox h-4 w-4 text-blue-600"
+                    required
+                />
+                <label for="terms" class="ml-2 text-sm text-black text-white">
+                    I agree to the <a href="#" class="text-blue-500 hover:underline">Terms and Conditions</a>
+                </label>
+            </div>
+            <div id="termsError" class="mt-1 text-sm text-red-600 text-red-400 hidden">
+                You must agree to the terms and conditions
+            </div>
+
+            <button type="submit" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold transition duration-200 shadow-sm">
+                Register
+            </button>
+        </form>
+
+        <p class="text-sm text-center text-black text-gray-300">
+            Already have an account? <a href="@Url.Action("Login","Auth")" class="text-blue-500 hover:underline font-medium">Login</a>
+        </p>
+    </div>
+</div>
+
+<script src="~/js/register.js"></script>
+
+<style>
+    /* Enhanced styling with black text */
+    * {
+        box-sizing: border-box;
+    }
+    
+    body {
+        overflow-x: hidden;
+    }
+    
+    input, select {
+        transition: all 0.3s ease;
+        color: #000 !important;
+    }
+    
+    /* Dark mode text color override */
+    .dark input,
+    .dark select {
+        color: #fff !important;
+    }
+    
+    /* Placeholder color */
+    input::placeholder {
+        color: #666 !important;
+    }
+    
+    .dark input::placeholder {
+        color: #aaa !important;
+    }
+    
+    /* Labels and text */
+    .text-gray-700 {
+        color: #000 !important;
+    }
+    
+    .dark .text-gray-200 {
+        color: #fff !important;
+    }
+    
+    /* Success state */
+    input:valid:not(:focus):not(:placeholder-shown),
+    select:valid:not(:focus) {
+        border-color: #10b981;
+    }
+    
+    /* Error state */
+    input:invalid:not(:focus):not(:placeholder-shown),
+    select:invalid:not(:focus) {
+        border-color: #ef4444;
+    }
+    
+    /* Password strength bars transition */
+    #strengthBar1, #strengthBar2, #strengthBar3, #strengthBar4 {
+        transition: background-color 0.3s ease;
+    }
+    
+    /* Focus styles */
+    input:focus, select:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+    
+    /* Disabled button styling */
+    button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    /* Responsive adjustments */
+    @@media (max-width: 640px) {
+        .p-8 {
+            padding: 1.5rem !important;
+        }
+        
+        .space-y-6 > * + * {
+            margin-top: 1rem !important;
+        }
+        
+        .space-y-4 > * + * {
+            margin-top: 0.75rem !important;
+        }
+        
+        h2 {
+            font-size: 1.5rem !important;
+        }
+    }
+    
+    @@media (max-width: 480px) {
+        .p-8 {
+            padding: 1.25rem !important;
+        }
+        
+        .max-w-md {
+            max-width: 100% !important;
+        }
+    }
+    
+    /* Ensure form fits on mobile without scrolling */
+    .min-h-screen {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Make form container responsive */
+    .w-full {
+        width: 100%;
+    }
+</style>

@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = ViewData["PageTitle"] ?? "Doctor Schedule";
+    Layout = "_Layout";
+}
+
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">Doctor Schedule</h1>
+        <p class="text-gray-600 mb-6">View the weekly schedule and available time slots for doctors.</p>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Day</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @{
+                        var schedule = ViewData["WeeklySchedule"] as dynamic[] ?? new dynamic[] {
+                            new { Day = "Monday", Hours = "09:00 AM - 05:00 PM" },
+                            new { Day = "Tuesday", Hours = "09:00 AM - 05:00 PM" },
+                            new { Day = "Wednesday", Hours = "09:00 AM - 05:00 PM" },
+                            new { Day = "Thursday", Hours = "09:00 AM - 05:00 PM" },
+                            new { Day = "Friday", Hours = "09:00 AM - 03:00 PM" },
+                            new { Day = "Saturday", Hours = "10:00 AM - 01:00 PM" },
+                            new { Day = "Sunday", Hours = "Closed" }
+                        };
+                    }
+
+                    @foreach (var row in schedule)
+                    {
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">@row.Day</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">@row.Hours</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

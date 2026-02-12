@@ -1,0 +1,146 @@
+@{
+    ViewData["Title"] = "Book Appointment";
+    var doctorName = ViewData["DoctorName"]?.ToString() ?? "Doctor";
+    var doctorId = ViewData["DoctorId"]?.ToString() ?? "0";
+}
+
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-900 dark:text-white">Book Appointment</h1>
+        
+        <!-- Doctor Info -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6">
+            <p class="text-sm text-gray-600 dark:text-gray-400">Booking with:</p>
+            <p class="text-xl font-semibold text-blue-600 dark:text-blue-400">@doctorName</p>
+        </div>
+
+        <!-- Appointment Form -->
+        <form id="appointmentForm" class="space-y-6">
+            <!-- Patient Name -->
+            <div>
+                <label for="patientName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Patient Name <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="patientName" name="patientName" required
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                       placeholder="Enter your full name">
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Email <span class="text-red-500">*</span>
+                </label>
+                <input type="email" id="email" name="email" required
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                       placeholder="your.email@example.com">
+            </div>
+
+            <!-- Phone -->
+            <div>
+                <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Phone Number <span class="text-red-500">*</span>
+                </label>
+                <input type="tel" id="phone" name="phone" required
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                       placeholder="+1 (555) 123-4567">
+            </div>
+
+            <!-- Appointment Date -->
+            <div>
+                <label for="appointmentDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Preferred Date <span class="text-red-500">*</span>
+                </label>
+                <input type="date" id="appointmentDate" name="appointmentDate" required
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Appointment Time -->
+            <div>
+                <label for="appointmentTime" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Preferred Time <span class="text-red-500">*</span>
+                </label>
+                <select id="appointmentTime" name="appointmentTime" required
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select a time</option>
+                    <option value="09:00 AM">09:00 AM</option>
+                    <option value="10:00 AM">10:00 AM</option>
+                    <option value="11:00 AM">11:00 AM</option>
+                    <option value="12:00 PM">12:00 PM</option>
+                    <option value="01:00 PM">01:00 PM</option>
+                    <option value="02:00 PM">02:00 PM</option>
+                    <option value="03:00 PM">03:00 PM</option>
+                    <option value="04:00 PM">04:00 PM</option>
+                    <option value="05:00 PM">05:00 PM</option>
+                </select>
+            </div>
+
+            <!-- Appointment Type -->
+            <div>
+                <label for="appointmentType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Appointment Type <span class="text-red-500">*</span>
+                </label>
+                <select id="appointmentType" name="appointmentType" required
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select type</option>
+                    <option value="Check-up">General Check-up</option>
+                    <option value="Consultation">Consultation</option>
+                    <option value="Follow-up">Follow-up</option>
+                    <option value="New Patient">New Patient</option>
+                </select>
+            </div>
+
+            <!-- Reason for Visit -->
+            <div>
+                <label for="reason" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Reason for Visit
+                </label>
+                <textarea id="reason" name="reason" rows="4"
+                          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                          placeholder="Please describe your symptoms or reason for visit..."></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex gap-4">
+                <button type="submit"
+                        class="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
+                    <i class="fas fa-calendar-check mr-2"></i>Book Appointment
+                </button>
+                <a href="@Url.Action("Index", "Doctor")"
+                   class="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg font-medium transition text-center">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Doctors
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            doctorId: @doctorId,
+            doctorName: '@doctorName',
+            patientName: document.getElementById('patientName').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            appointmentDate: document.getElementById('appointmentDate').value,
+            appointmentTime: document.getElementById('appointmentTime').value,
+            appointmentType: document.getElementById('appointmentType').value,
+            reason: document.getElementById('reason').value
+        };
+        
+        console.log('Appointment Data:', formData);
+        
+        // Show success message
+        alert(`Appointment booked successfully!\\n\\nDoctor: ${formData.doctorName}\\nDate: ${formData.appointmentDate}\\nTime: ${formData.appointmentTime}\\n\\nYou will receive a confirmation email shortly.`);
+        
+        // Redirect back to doctors list
+        window.location.href = '@Url.Action("Index", "Doctor")';
+    });
+    
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('appointmentDate').setAttribute('min', today);
+</script>

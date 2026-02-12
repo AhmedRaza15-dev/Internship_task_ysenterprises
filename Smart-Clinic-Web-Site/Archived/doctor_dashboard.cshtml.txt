@@ -1,0 +1,1730 @@
+@page "/Doctor/Dashboard"
+@{
+    ViewData["Title"] = "Doctor Dashboard";
+}
+
+@{
+    ViewData["Title"] = "Doctor Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@page "/doctor-dashboard"
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using System.ComponentModel.DataAnnotations
+@using System.Globalization
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>Doctor Dashboard - Smart Clinic</PageTitle>
+
+<div class="min-h-screen bg-gray-50 font-sans">
+<partial name="_Navbar" />
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Main content area -->
+        <div class="px-4 py-6 sm:px-0">
+            <!-- Blazor Component will be rendered here -->
+            @(await Html.RenderComponentAsync<DoctorDashboard>(RenderMode.ServerPrerendered))
+        </div>
+    </div>
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-purple-700 text-white shadow-lg">
+        <div class="px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <button @onclick="ToggleSidebar" class="p-2 rounded-lg hover:bg-white/10 transition-colors">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl font-bold flex items-center">
+                        <i class="fas fa-stethoscope mr-3"></i>
+                        Smart Clinic - Doctor Portal
+                    </h1>
+                    <p class="text-sm text-blue-100">Dr. @CurrentDoctor?.FullName</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <!-- Quick Actions -->
+                <div class="flex space-x-2">
+                    <button @onclick="OpenPrescriptionModal" 
+                            class="p-2 rounded-lg hover:bg-white/10 transition-colors" 
+                            @{
+                                ViewData["Title"] = "Doctor Dashboard";
+                                Layout = "~/Views/Shared/_Layout.cshtml";
+                            }
+
+                            @{
+                                // Dummy data for dashboard (used when controller doesn't provide a model)
+                                var appointmentData = new[] {
+                                    new { Day = "Mon", Height = 60 },
+                                    new { Day = "Tue", Height = 75 },
+                                    new { Day = "Wed", Height = 50 },
+                                    new { Day = "Thu", Height = 85 },
+                                    new { Day = "Fri", Height = 40 },
+                                    new { Day = "Sat", Height = 30 },
+                                    new { Day = "Sun", Height = 20 }
+                                };
+
+                                var recentActivities = new[] {
+                                    new { Icon = "user-plus", Color = "blue", Description = "New patient registered", Details = "John Doe • 30 min ago" },
+                                    new { Icon = "file-medical", Color = "green", Description = "Medical record updated", Details = "Dr. Smith • 2 hours ago" },
+                                    @{
+                                        ViewData["Title"] = "Doctor Dashboard";
+
+                                        // Dummy data for dashboard (used when controller doesn't provide a model)
+                                        var appointmentData = new[] {
+                                            new { Day = "Mon", Height = 60 },
+                                            new { Day = "Tue", Height = 75 },
+                                            new { Day = "Wed", Height = 50 },
+                                            new { Day = "Thu", Height = 85 },
+                                            new { Day = "Fri", Height = 40 },
+                                            new { Day = "Sat", Height = 30 },
+                                            new { Day = "Sun", Height = 20 }
+                                        };
+
+                                        var recentActivities = new[] {
+                                            new { Icon = "user-plus", Color = "blue", Description = "New patient registered", Details = "John Doe • 30 min ago" },
+                                            new { Icon = "file-medical", Color = "green", Description = "Medical record updated", Details = "Dr. Smith • 2 hours ago" },
+                                            new { Icon = "calendar-check", Color = "purple", Description = "Appointment scheduled", Details = "For tomorrow, 10:00 AM" }
+                                        };
+
+                                        var upcomingAppointments = new[] {
+                                            new { PatientName = "Michael Chen", PatientId = "#P-10234", DoctorName = "Dr. Emily Wilson", Time = "Today, 11:30 AM", Status = "Confirmed", StatusColor = "blue", Action = "View Details" },
+                                            new { PatientName = "Jennifer Parker", PatientId = "#P-10235", DoctorName = "Dr. Robert Brown", Time = "Today, 2:00 PM", Status = "Pending", StatusColor = "yellow", Action = "Confirm" }
+                                        };
+
+                                        var doctorAvailability = new[] {
+                                            new { Name = "Dr. Sarah Johnson", Specialization = "General Physician", IsAvailable = true },
+                                            new { Name = "Dr. Robert Brown", Specialization = "Cardiologist", IsAvailable = false }
+                                        };
+
+                                        var emergencyContacts = new[] {
+                                            new { Name = "Emergency Ward", Department = "Emergency", Phone = "911", Icon = "ambulance" },
+                                            new { Name = "Pharmacy", Department = "Medications", Phone = "+1-555-0124", Icon = "pills" }
+                                        };
+                                    }
+
+                                    <div class="p-6">
+                                        <!-- Welcome Banner -->
+                                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white mb-8">
+                                            <div class="flex flex-col md:flex-row justify-between items-center">
+                                                <div>
+                                                    <h1 class="text-2xl font-bold">Welcome back, Dr. Johnson</h1>
+                                                    <p class="mt-2 opacity-90">Here's what's happening with your clinic today.</p>
+                                                </div>
+                                                <div class="mt-4 md:mt-0">
+                                                    <span class="text-sm bg-white text-blue-600 px-4 py-2 rounded-lg font-medium">Last updated: Today at 10:30 AM</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Stats Cards -->
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                                            <!-- Total Patients Card -->
+                                            <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-blue-500">
+                                                <div class="flex justify-between items-start">
+                                                    <div>
+                                                        <p class="text-gray-500 text-sm">Total Patients</p>
+                                                        <h3 class="text-2xl font-bold mt-2">1,247</h3>
+                                                        <p class="text-green-600 text-sm mt-1">
+                                                            <span class="fas fa-arrow-up mr-1"></span> 12% from last month
+                                                        </p>
+                                                    </div>
+                                                    <div class="bg-blue-100 p-3 rounded-lg">
+                                                        <span class="fas fa-users text-blue-600 text-xl"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Active Doctors Card -->
+                                            <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-green-500">
+                                                <div class="flex justify-between items-start">
+                                                    <div>
+                                                        <p class="text-gray-500 text-sm">Active Doctors</p>
+                                                        <h3 class="text-2xl font-bold mt-2">24</h3>
+                                                        <p class="text-green-600 text-sm mt-1">
+                                                            <span class="fas fa-user-check mr-1"></span> All available
+                                                        </p>
+                                                    </div>
+                                                    <div class="bg-green-100 p-3 rounded-lg">
+                                                        <span class="fas fa-stethoscope text-green-600 text-xl"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Today's Appointments Card -->
+                                            <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-purple-500">
+                                                <div class="flex justify-between items-start">
+                                                    <div>
+                                                        <p class="text-gray-500 text-sm">Today's Appointments</p>
+                                                        <h3 class="text-2xl font-bold mt-2">42</h3>
+                                                        <p class="text-red-600 text-sm mt-1">
+                                                            <span class="fas fa-clock mr-1"></span> 3 pending
+                                                        </p>
+                                                    </div>
+                                                    <div class="bg-purple-100 p-3 rounded-lg">
+                                                        <span class="fas fa-calendar-check text-purple-600 text-xl"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Revenue Card -->
+                                            <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-yellow-500">
+                                                <div class="flex justify-between items-start">
+                                                    <div>
+                                                        <p class="text-gray-500 text-sm">Monthly Revenue</p>
+                                                        <h3 class="text-2xl font-bold mt-2">$42,580</h3>
+                                                        <p class="text-green-600 text-sm mt-1">
+                                                            <span class="fas fa-arrow-up mr-1"></span> 8.5% increase
+                                                        </p>
+                                                    </div>
+                                                    <div class="bg-yellow-100 p-3 rounded-lg">
+                                                        <span class="fas fa-dollar-sign text-yellow-600 text-xl"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Charts and Tables Section -->
+                                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                                            <!-- Appointments Chart -->
+                                            <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
+                                                <div class="flex justify-between items-center mb-6">
+                                                    <h3 class="text-lg font-semibold">Weekly Appointments</h3>
+                                                    <select class="border rounded-lg px-3 py-1 text-sm" id="selectedTimePeriod" name="selectedTimePeriod">
+                                                        <option value="week">This Week</option>
+                                                        <option value="lastWeek">Last Week</option>
+                                                        <option value="month">This Month</option>
+                                                    </select>
+                                                </div>
+                                                @{
+                                                    // Prepare SVG line chart points from appointmentData
+                                                    var svgWidth = 700; // viewBox width
+                                                    var svgHeight = 120; // viewBox height
+                                                    var maxVal = 100.0;
+                                                    var n = appointmentData.Length;
+                                                    var step = n > 1 ? (double)svgWidth / (n - 1) : svgWidth;
+                                                    var points = new List<string>();
+                                                    for (int i = 0; i < n; i++)
+                                                    {
+                                                        var h = (double)appointmentData[i].Height;
+                                                        var x = step * i;
+                                                        var y = svgHeight - (h / maxVal * svgHeight);
+                                                        points.Add($"{x},{y}");
+                                                    }
+                                                    var pointsAttr = string.Join(" ", points);
+                                                }
+
+                                                <div class="w-full">
+                                                    <svg viewBox="0 0 @svgWidth @svgHeight" preserveAspectRatio="none" class="w-full h-64">
+                                                        <!-- area fill -->
+                                                        <polyline points="@pointsAttr" fill="rgba(59,130,246,0.08)" stroke="none"/>
+                                                        <!-- line -->
+                                                        <polyline points="@pointsAttr" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+                                                        <!-- markers -->
+                                                        @for (int i = 0; i < n; i++)
+                                                        {
+                                                            var p = points[i].Split(',');
+                                                            <circle cx="@p[0]" cy="@p[1]" r="3.5" fill="#1e40af" />
+                                                        }
+                                                    </svg>
+                                                </div>
+                                                <div class="flex justify-between mt-2 text-xs text-gray-500 px-2">
+                                                    @foreach (var d in appointmentData)
+                                                    {
+                                                        <span>@d.Day</span>
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <!-- Recent Activity -->
+                                            <div class="bg-white rounded-xl shadow-md p-6">
+                                                <h3 class="text-lg font-semibold mb-6">Recent Activity</h3>
+                                                <div class="space-y-4">
+                                                    @{
+                                                        var bootstrapIcons = new Dictionary<string, (string iconClass, string bgColor, string textColor)>
+                                                        {
+                                                            { "user-plus", ("fas fa-user-plus", "bg-blue-100", "text-blue-600") },
+                                                            { "file-medical", ("fas fa-file-medical", "bg-green-100", "text-green-600") },
+                                                            { "calendar-check", ("fas fa-calendar-check", "bg-purple-100", "text-purple-600") },
+                                                            { "prescription", ("fas fa-prescription-bottle-medical", "bg-yellow-100", "text-yellow-600") },
+                                                            { "ambulance", ("fas fa-ambulance", "bg-red-100", "text-red-600") }
+                                                        };
+                                                    }
+                
+                                                    @foreach (var activity in recentActivities)
+                                                    {
+                                                        var iconData = bootstrapIcons[activity.Icon];
+                                                        <div class="flex items-start">
+                                                            <div class="p-2 rounded-lg mr-3 @iconData.bgColor">
+                                                                <span class="@iconData.iconClass @iconData.textColor"></span>
+                                                            </div>
+                                                            <div>
+                                                                <p class="text-sm font-medium">@activity.Description</p>
+                                                                <p class="text-xs text-gray-500">@activity.Details</p>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Upcoming Appointments Table -->
+                                        <div class="bg-white rounded-xl shadow-md p-6">
+                                            <div class="flex justify-between items-center mb-6">
+                                                <h3 class="text-lg font-semibold">Upcoming Appointments</h3>
+                                                <button type="button" class="text-blue-600 font-medium text-sm">View All</button>
+                                            </div>
+                                            <div class="overflow-x-auto">
+                                                <table class="w-full">
+                                                    <thead>
+                                                        <tr class="text-left text-gray-500 text-sm border-b">
+                                                            <th class="pb-3">Patient</th>
+                                                            <th class="pb-3">Doctor</th>
+                                                            <th class="pb-3">Time</th>
+                                                            <th class="pb-3">Status</th>
+                                                            <th class="pb-3">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var appointment in upcomingAppointments)
+                                                        {
+                                                            var statusColors = new Dictionary<string, (string bgColor, string textColor)>
+                                                            {
+                                                                { "Confirmed", appointment.StatusColor == "blue" ? ("bg-blue-100", "text-blue-800") : ("bg-green-100", "text-green-800") },
+                                                                { "Pending", ("bg-yellow-100", "text-yellow-800") }
+                                                            };
+                                                            var colors = statusColors[appointment.Status];
+                        
+                                                            <tr class="border-b hover:bg-gray-50">
+                                                                <td class="py-4">
+                                                                    <div class="flex items-center">
+                                                                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                                                                    <span class="fas fa-user text-blue-600 text-xs"></span>
+                                                                                </div>
+                                                                        <div>
+                                                                            <p class="font-medium">@appointment.PatientName</p>
+                                                                            <p class="text-xs text-gray-500">ID: @appointment.PatientId</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="py-4">@appointment.DoctorName</td>
+                                                                <td class="py-4">@appointment.Time</td>
+                                                                <td class="py-4">
+                                                                    <span class="px-3 py-1 rounded-full text-xs @colors.bgColor @colors.textColor">
+                                                                        @appointment.Status
+                                                                    </span>
+                                                                </td>
+                                                                <td class="py-4">
+                                                                    <button type="button" class="text-blue-600 text-sm font-medium">
+                                                                        @appointment.Action
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quick Actions Panel -->
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                                            <div class="bg-white rounded-xl shadow-md p-6">
+                                                <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+                                                <div class="space-y-3">
+                                                    <button type="button" class="w-full text-left p-3 rounded-lg border hover:bg-blue-50 hover:border-blue-300 transition">
+                                                        <span class="fas fa-user-plus text-blue-600 mr-3"></span>
+                                                        <span>Add New Patient</span>
+                                                    </button>
+                                                    <button type="button" class="w-full text-left p-3 rounded-lg border hover:bg-green-50 hover:border-green-300 transition">
+                                                        <span class="fas fa-calendar-plus text-green-600 mr-3"></span>
+                                                        <span>Schedule Appointment</span>
+                                                    </button>
+                                                    <button type="button" class="w-full text-left p-3 rounded-lg border hover:bg-purple-50 hover:border-purple-300 transition">
+                                                        <span class="fas fa-chart-bar text-purple-600 mr-3"></span>
+                                                        <span>Generate Report</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Doctor Availability -->
+                                            <div class="bg-white rounded-xl shadow-md p-6">
+                                                <h3 class="text-lg font-semibold mb-4">Doctor Availability</h3>
+                                                <div class="space-y-4">
+                                                    @foreach (var doctor in doctorAvailability)
+                                                    {
+                                                        var statusClass = doctor.IsAvailable ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800";
+                                                        <div class="flex items-center justify-between">
+                                                            <div class="flex items-center">
+                                                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                                                    <span class="fas fa-id-badge text-blue-600"></span>
+                                                                </div>
+                                                                <div>
+                                                                    <p class="font-medium text-sm">@doctor.Name</p>
+                                                                    <p class="text-xs text-gray-500">@doctor.Specialization</p>
+                                                                </div>
+                                                            </div>
+                                                            <span class="px-3 py-1 rounded-full text-xs @statusClass">
+                                                                @(doctor.IsAvailable ? "Available" : "Busy")
+                                                            </span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <!-- Emergency Contacts -->
+                                            <div class="bg-white rounded-xl shadow-md p-6">
+                                                <h3 class="text-lg font-semibold mb-4">Emergency Contacts</h3>
+                                                <div class="space-y-4">
+                                                    @{
+                                                        var contactIcons = new Dictionary<string, string>
+                                                        {
+                                                            { "ambulance", "fas fa-ambulance" },
+                                                            { "pills", "fas fa-pills" },
+                                                            { "user-md", "fas fa-user-md" },
+                                                            { "flask", "fas fa-flask" }
+                                                        };
+                                                    }
+                
+                                                    @foreach (var contact in emergencyContacts)
+                                                    {
+                                                        var iconClass = contactIcons.ContainsKey(contact.Icon) ? contactIcons[contact.Icon] : "fas fa-phone";
+                                                        <div class="flex items-center justify-between p-3 rounded-lg border hover:bg-red-50 transition">
+                                                            <div class="flex items-center">
+                                                                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                                                    <span class="@iconClass text-red-600"></span>
+                                                                </div>
+                                                                <div>
+                                                                    <p class="font-medium text-sm">@contact.Name</p>
+                                                                    <p class="text-xs text-gray-500">@contact.Department</p>
+                                                                </div>
+                                                            </div>
+                                                            <a href="tel:@contact.Phone" class="text-red-600 hover:text-red-800">
+                                                                <span class="fas fa-phone"></span>
+                                                            </a>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <style>
+                                        .card-hover:hover {
+                                            transform: translateY(-2px);
+                                            transition: transform 0.2s ease-in-out;
+                                            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                                        }
+                                    </style>
+                                    </button>
+                                    <button @onclick="ScheduleFollowUp"
+                                            class="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl p-4 flex flex-col items-center justify-center transition-colors">
+                                        <i class="fas fa-calendar-plus text-indigo-600 text-2xl mb-2"></i>
+                                        <span class="text-sm font-medium text-gray-700">Schedule Follow-up</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Activity -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                                    <i class="fas fa-history text-gray-600 mr-3"></i>
+                                    Recent Activity
+                                </h3>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    @foreach (var activity in RecentActivities.Take(5))
+                                    {
+                                        <div class="flex items-start space-x-3">
+                                            <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                                <i class="@activity.Icon text-blue-600 text-sm"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="text-sm text-gray-700">@activity.Description</p>
+                                                <p class="text-xs text-gray-500 mt-1">@activity.Timestamp.ToString("hh:mm tt")</p>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (currentView == DashboardView.Appointments)
+            {
+                <!-- APPOINTMENT LIST VIEW -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                                <i class="fas fa-calendar-alt text-blue-600 mr-3"></i>
+                                Appointment List
+                            </h2>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 rounded-full @(IsAvailable ? "bg-green-500" : "bg-yellow-500")"></div>
+                                    <select @bind="SelectedAvailabilityStatus" 
+                                            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="Available">Available</option>
+                                        <option value="Busy">Busy</option>
+                                        <option value="OnBreak">On Break</option>
+                                        <option value="Away">Away</option>
+                                    </select>
+                                </div>
+                                <button @onclick="CreateNewAppointment" 
+                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+                                    <i class="fas fa-plus"></i>
+                                    <span>New Appointment</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="p-6 border-b border-gray-200 bg-gray-50">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                                <div class="flex space-x-2">
+                                    <input type="date" @bind="filterStartDate" 
+                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    <input type="date" @bind="filterEndDate" 
+                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                <select @bind="filterStatus" 
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">All Status</option>
+                                    @foreach (var status in Enum.GetValues<AppointmentStatus>())
+                                    {
+                                        <option value="@status">@status</option>
+                                    }
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Patient Name</label>
+                                <input type="text" @bind="filterPatientName" 
+                                       placeholder="Search patient..." 
+                                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            </div>
+                            
+                            <div class="flex items-end space-x-2">
+                                <button @onclick="ApplyFilters" 
+                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+                                    <i class="fas fa-filter"></i>
+                                    <span>Apply Filters</span>
+                                </button>
+                                <button @onclick="ResetFilters" 
+                                        class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Appointments Table -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Consultation</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prescription</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach (var appointment in FilteredAppointments.OrderByDescending(a => a.AppointmentDate))
+                                {
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">@appointment.AppointmentDate.ToString("MMM dd, yyyy")</div>
+                                            <div class="text-sm text-gray-500">@appointment.StartTime.ToString(@"hh\:mm")</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10">
+                                                    <img class="h-10 w-10 rounded-full" src="@appointment.PatientPhoto" alt="@appointment.PatientName">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">@appointment.PatientName</div>
+                                                    <div class="text-sm text-gray-500">@appointment.PatientAge years</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                @appointment.Type
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium @GetStatusBadgeClass(appointment.Status)">
+                                                @appointment.Status
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @if (!string.IsNullOrEmpty(appointment.ConsultationNotes))
+                                            {
+                                                <button @onclick="() => ViewConsultationNotes(appointment)"
+                                                        class="text-green-600 hover:text-green-900 flex items-center space-x-1">
+                                                    <i class="fas fa-file-medical-alt"></i>
+                                                    <span>View Notes</span>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button @onclick="() => AddConsultationNotes(appointment)"
+                                                        class="text-blue-600 hover:text-blue-900 flex items-center space-x-1">
+                                                    <i class="fas fa-plus"></i>
+                                                    <span>Add Notes</span>
+                                                </button>
+                                            }
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @if (appointment.HasPrescription)
+                                            {
+                                                <div class="flex items-center space-x-2">
+                                                    <i class="fas fa-prescription text-blue-500"></i>
+                                                    <button @onclick="() => ViewPrescription(appointment)"
+                                                            class="text-blue-600 hover:text-blue-900">
+                                                        View Prescription
+                                                    </button>
+                                                    <button @onclick="() => GeneratePrescriptionPDF(appointment)"
+                                                            class="text-red-600 hover:text-red-900">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                    </button>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <button @onclick="() => PrescribeForAppointment(appointment)"
+                                                        class="text-green-600 hover:text-green-900 flex items-center space-x-1">
+                                                    <i class="fas fa-prescription"></i>
+                                                    <span>Prescribe</span>
+                                                </button>
+                                            }
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="flex items-center space-x-2">
+                                                <button @onclick="() => StartConsultation(appointment)"
+                                                        class="text-blue-600 hover:text-blue-900"
+                                                        title="Consultation">
+                                                    <i class="fas fa-stethoscope"></i>
+                                                </button>
+                                                <button @onclick="() => PrescribeForAppointment(appointment)"
+                                                        class="text-green-600 hover:text-green-900"
+                                                        title="Prescribe">
+                                                    <i class="fas fa-pills"></i>
+                                                </button>
+                                                <button @onclick="() => GeneratePrescriptionPDF(appointment)"
+                                                        class="text-red-600 hover:text-red-900"
+                                                        title="Generate PDF">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </main>
+    </div>
+</div>
+
+<!-- CONSULTATION NOTES MODAL -->
+@if (showConsultationModal)
+{
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-file-medical-alt text-blue-600 mr-3"></i>
+                    Consultation Notes - @selectedAppointment?.PatientName
+                </h3>
+                <button @onclick="CloseConsultationModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Chief Complaint</label>
+                        <textarea @bind="consultationNotes.ChiefComplaint" 
+                                  rows="3" 
+                                  placeholder="Patient's main complaint..."
+                                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">History of Present Illness</label>
+                        <textarea @bind="consultationNotes.HistoryOfPresentIllness" 
+                                  rows="4" 
+                                  placeholder="Detailed history..."
+                                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Examination Findings</label>
+                        <textarea @bind="consultationNotes.ExaminationFindings" 
+                                  rows="4" 
+                                  placeholder="Physical examination findings..."
+                                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Diagnosis</label>
+                        <textarea @bind="consultationNotes.Diagnosis" 
+                                  rows="3" 
+                                  placeholder="Primary and secondary diagnoses..."
+                                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Treatment Plan</label>
+                        <textarea @bind="consultationNotes.TreatmentPlan" 
+                                  rows="4" 
+                                  placeholder="Recommended treatment..."
+                                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Follow-up Instructions</label>
+                        <textarea @bind="consultationNotes.FollowUpInstructions" 
+                                  rows="3" 
+                                  placeholder="Follow-up advice..."
+                                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                    <button @onclick="CloseConsultationModal" 
+                            class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button @onclick="SaveConsultationNotes" 
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                        <i class="fas fa-save"></i>
+                        <span>Save Consultation Notes</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- PRESCRIPTION MODAL -->
+@if (showPrescriptionModal)
+{
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-prescription text-blue-600 mr-3"></i>
+                    Prescription - @selectedAppointment?.PatientName
+                </h3>
+                <div class="flex items-center space-x-3">
+                    <button @onclick="GeneratePrescriptionPDF(selectedAppointment)" 
+                            class="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Generate PDF</span>
+                    </button>
+                    <button @onclick="ClosePrescriptionModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+                <!-- Patient Info -->
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+                    <div class="flex items-center space-x-4">
+                        <img src="@selectedAppointment?.PatientPhoto" 
+                             alt="@selectedAppointment?.PatientName" 
+                             class="w-16 h-16 rounded-full border-4 border-white" />
+                        <div>
+                            <h4 class="text-xl font-bold text-gray-800">@selectedAppointment?.PatientName</h4>
+                            <div class="flex flex-wrap gap-4 mt-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-user text-gray-500"></i>
+                                    <span class="text-gray-600">Age: @selectedAppointment?.PatientAge years</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-calendar text-gray-500"></i>
+                                    <span class="text-gray-600">Date: @DateTime.Now.ToString("MMMM dd, yyyy")</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Medicines -->
+                <div class="mb-8">
+                    <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-pills text-blue-600 mr-3"></i>
+                        Prescribed Medicines
+                    </h4>
+                    
+                    <div class="space-y-4">
+                        @for (int i = 0; i < prescriptionMedicines.Count; i++)
+                        {
+                            var medicine = prescriptionMedicines[i];
+                            <div class="border border-gray-200 rounded-xl p-4">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="font-semibold text-gray-800">@medicine.Name</h5>
+                                    <button @onclick="() => RemoveMedicine(i)" 
+                                            class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Dosage</label>
+                                        <input type="text" @bind="medicine.Dosage" 
+                                               placeholder="e.g., 500mg" 
+                                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Frequency</label>
+                                        <input type="text" @bind="medicine.Frequency" 
+                                               placeholder="e.g., Once daily" 
+                                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                                        <input type="text" @bind="medicine.Duration" 
+                                               placeholder="e.g., 7 days" 
+                                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Instructions</label>
+                                        <textarea @bind="medicine.Instructions" 
+                                                  rows="2" 
+                                                  placeholder="Special instructions..."
+                                                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    <button @onclick="AddNewMedicine" 
+                            class="mt-4 flex items-center space-x-2 text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Medicine</span>
+                    </button>
+                </div>
+                
+                <!-- Additional Instructions -->
+                <div class="mb-8">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Additional Instructions</label>
+                    <textarea @bind="prescription.AdditionalInstructions" 
+                              rows="4" 
+                              placeholder="Any additional instructions for the patient..."
+                              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                </div>
+                
+                <!-- Signature -->
+                <div class="border-t border-gray-200 pt-6">
+                    <h5 class="text-lg font-bold text-gray-800 mb-4">Doctor's Signature</h5>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-bold text-gray-800">Dr. @CurrentDoctor?.FullName</p>
+                                <p class="text-gray-600">@CurrentDoctor?.Specialization</p>
+                                <p class="text-sm text-gray-500 mt-2">License No: @CurrentDoctor?.LicenseNumber</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-gray-600">Date: @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+                                <div class="mt-4">
+                                    @if (prescription.IsDigitalSignature)
+                                    {
+                                        <div class="text-blue-600 flex items-center space-x-2">
+                                            <i class="fas fa-signature text-2xl"></i>
+                                            <span>Digitally Signed</span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                    <button @onclick="ClosePrescriptionModal" 
+                            class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button @onclick="SavePrescription" 
+                            class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2">
+                        <i class="fas fa-save"></i>
+                        <span>Save Prescription</span>
+                    </button>
+                    <button @onclick="GeneratePrescriptionPDF(selectedAppointment)" 
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                        <i class="fas fa-print"></i>
+                        <span>Print/Save as PDF</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- AVAILABILITY SETTINGS MODAL -->
+@if (showAvailabilityModal)
+{
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-calendar-alt text-blue-600 mr-3"></i>
+                    Set Your Availability
+                </h3>
+                <button @onclick="CloseAvailabilityModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+                <div class="space-y-6">
+                    <!-- Current Status -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Current Status</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <button @onclick="() => SetAvailabilityStatus("Available")" 
+                                    class="p-4 border rounded-xl flex flex-col items-center justify-center @(doctorAvailability.Status == "Available" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300")">
+                                <div class="w-3 h-3 rounded-full bg-green-500 mb-2"></div>
+                                <span class="text-sm font-medium">Available</span>
+                            </button>
+                            <button @onclick="() => SetAvailabilityStatus("Busy")" 
+                                    class="p-4 border rounded-xl flex flex-col items-center justify-center @(doctorAvailability.Status == "Busy" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300")">
+                                <div class="w-3 h-3 rounded-full bg-yellow-500 mb-2"></div>
+                                <span class="text-sm font-medium">Busy</span>
+                            </button>
+                            <button @onclick="() => SetAvailabilityStatus("OnBreak")" 
+                                    class="p-4 border rounded-xl flex flex-col items-center justify-center @(doctorAvailability.Status == "OnBreak" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300")">
+                                <div class="w-3 h-3 rounded-full bg-orange-500 mb-2"></div>
+                                <span class="text-sm font-medium">On Break</span>
+                            </button>
+                            <button @onclick="() => SetAvailabilityStatus("Away")" 
+                                    class="p-4 border rounded-xl flex flex-col items-center justify-center @(doctorAvailability.Status == "Away" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300")">
+                                <div class="w-3 h-3 rounded-full bg-red-500 mb-2"></div>
+                                <span class="text-sm font-medium">Away</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Working Hours -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Working Hours</label>
+                        <div class="space-y-3">
+                            @foreach (var day in doctorAvailability.WorkingHours)
+                            {
+                                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <input type="checkbox" @bind="day.IsWorking" 
+                                               class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500" />
+                                        <span class="font-medium">@day.Day</span>
+                                    </div>
+                                    @if (day.IsWorking)
+                                    {
+                                        <div class="flex items-center space-x-2">
+                                            <input type="time" @bind="day.StartTime" 
+                                                   class="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+                                            <span class="text-gray-500">to</span>
+                                            <input type="time" @bind="day.EndTime" 
+                                                   class="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    
+                    <!-- Break Time -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Break Time</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="time" @bind="doctorAvailability.BreakStartTime" 
+                                   class="flex-1 border border-gray-300 rounded-lg px-3 py-2" />
+                            <span class="text-gray-500">to</span>
+                            <input type="time" @bind="doctorAvailability.BreakEndTime" 
+                                   class="flex-1 border border-gray-300 rounded-lg px-3 py-2" />
+                        </div>
+                    </div>
+                    
+                    <!-- Days Off -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Days Off</label>
+                        <select @bind="selectedDayOff" multiple
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                    <button @onclick="CloseAvailabilityModal" 
+                            class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button @onclick="SaveAvailability" 
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                        <i class="fas fa-save"></i>
+                        <span>Save Availability</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    // Enums and Models
+    private enum DashboardView { Overview, Appointments, Patients, MedicalRecords, Prescriptions, Telemedicine, LabResults, Messages, Analytics }
+    private enum AppointmentStatus { Scheduled, Confirmed, InProgress, Completed, Cancelled, NoShow }
+    private enum AppointmentType { Consultation, FollowUp, Emergency, Telemedicine, Procedure }
+    
+    // State Variables
+    private bool isSidebarCollapsed = false;
+    private DashboardView currentView = DashboardView.Overview;
+    private bool IsAvailable = true;
+    private bool showNotifications = false;
+    private bool showProfileMenu = false;
+    
+    // Modal States
+    private bool showConsultationModal = false;
+    private bool showPrescriptionModal = false;
+    private bool showAvailabilityModal = false;
+    
+    // Data
+    private List<Appointment> TodayAppointments = new();
+    private List<Appointment> AllAppointments = new();
+    private List<Appointment> FilteredAppointments = new();
+    private List<Notification> Notifications = new();
+    private List<Activity> RecentActivities = new();
+    
+    private Appointment? selectedAppointment;
+    private ConsultationNotes consultationNotes = new();
+    private Prescription prescription = new();
+    private List<Medicine> prescriptionMedicines = new();
+    private DoctorAvailability doctorAvailability = new();
+    private string selectedDayOff = "";
+    
+    // Filter Variables
+    private DateTime filterStartDate = DateTime.Today;
+    private DateTime filterEndDate = DateTime.Today.AddDays(7);
+    private string filterStatus = "";
+    private string filterPatientName = "";
+    private string SelectedAvailabilityStatus = "Available";
+    
+    // Counters
+    private int TotalPatients = 42;
+    private int PendingConsultations = 3;
+    private int NewPatientsThisMonth = 5;
+    private int UnreadMessages = 7;
+    private int UnreadNotifications = 2;
+    private int PendingLabResults = 3;
+    
+    // Current User
+    private Doctor CurrentDoctor = new()
+    {
+        Id = "DOC001",
+        FullName = "John Smith",
+        LastName = "Smith",
+        Specialization = "Cardiologist",
+        PhotoUrl = "https://i.pravatar.cc/150?img=1",
+        LicenseNumber = "MED123456"
+    };
+    
+    // Models (same as before, but now with Tailwind classes)
+    public class Appointment
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string PatientId { get; set; } = "";
+        public string PatientName { get; set; } = "";
+        public string PatientPhoto { get; set; } = "";
+        public int PatientAge { get; set; }
+        public DateTime AppointmentDate { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
+        public AppointmentType Type { get; set; }
+        public AppointmentStatus Status { get; set; }
+        public string Reason { get; set; } = "";
+        public bool IsUrgent { get; set; }
+        public string ConsultationNotes { get; set; } = "";
+        public bool HasPrescription { get; set; }
+        public Prescription? Prescription { get; set; }
+    }
+    
+    public class ConsultationNotes
+    {
+        public string ChiefComplaint { get; set; } = "";
+        public string HistoryOfPresentIllness { get; set; } = "";
+        public string ExaminationFindings { get; set; } = "";
+        public string Diagnosis { get; set; } = "";
+        public string TreatmentPlan { get; set; } = "";
+        public string FollowUpInstructions { get; set; } = "";
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public string DoctorId { get; set; } = "";
+        public string AppointmentId { get; set; } = "";
+    }
+    
+    public class Prescription
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string PatientId { get; set; } = "";
+        public string PatientName { get; set; } = "";
+        public string DoctorId { get; set; } = "";
+        public string DoctorName { get; set; } = "";
+        public DateTime PrescriptionDate { get; set; } = DateTime.Now;
+        public List<Medicine> Medicines { get; set; } = new();
+        public string AdditionalInstructions { get; set; } = "";
+        public string Diagnosis { get; set; } = "";
+        public DateTime ValidUntil { get; set; } = DateTime.Now.AddDays(30);
+        public bool IsDigitalSignature { get; set; } = true;
+    }
+    
+    public class Medicine
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Name { get; set; } = "";
+        public string Dosage { get; set; } = "";
+        public string Frequency { get; set; } = "";
+        public string Duration { get; set; } = "";
+        public string Instructions { get; set; } = "";
+        public string Type { get; set; } = ""; // Tablet, Syrup, Injection, etc.
+    }
+    
+    public class DoctorAvailability
+    {
+        public string Status { get; set; } = "Available";
+        public List<WorkingDay> WorkingHours { get; set; } = new();
+        public TimeSpan BreakStartTime { get; set; } = new TimeSpan(13, 0, 0);
+        public TimeSpan BreakEndTime { get; set; } = new TimeSpan(14, 0, 0);
+        public List<string> DaysOff { get; set; } = new();
+    }
+    
+    public class WorkingDay
+    {
+        public string Day { get; set; } = "";
+        public bool IsWorking { get; set; } = true;
+        public TimeSpan StartTime { get; set; } = new TimeSpan(9, 0, 0);
+        public TimeSpan EndTime { get; set; } = new TimeSpan(17, 0, 0);
+    }
+    
+    public class Notification
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Message { get; set; } = "";
+        public string Icon { get; set; } = "fas fa-bell";
+        public DateTime Time { get; set; }
+        public bool IsRead { get; set; }
+    }
+    
+    public class Activity
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Description { get; set; } = "";
+        public string Icon { get; set; } = "fas fa-circle";
+        public DateTime Timestamp { get; set; }
+    }
+    
+    // Helper Method for Status Badge Classes
+    private string GetStatusBadgeClass(AppointmentStatus status)
+    {
+        return status switch
+        {
+            AppointmentStatus.Scheduled => "bg-yellow-100 text-yellow-800",
+            AppointmentStatus.Confirmed => "bg-blue-100 text-blue-800",
+            AppointmentStatus.InProgress => "bg-indigo-100 text-indigo-800",
+            AppointmentStatus.Completed => "bg-green-100 text-green-800",
+            AppointmentStatus.Cancelled => "bg-red-100 text-red-800",
+            AppointmentStatus.NoShow => "bg-gray-100 text-gray-800",
+            _ => "bg-gray-100 text-gray-800"
+        };
+    }
+    
+    // Lifecycle Methods
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSampleData();
+        InitializeDoctorAvailability();
+    }
+    
+    private async Task LoadSampleData()
+    {
+        // Load today's appointments
+        TodayAppointments = new List<Appointment>
+        {
+            new Appointment
+            {
+                PatientName = "Sarah Johnson",
+                PatientPhoto = "https://i.pravatar.cc/150?img=8",
+                PatientAge = 34,
+                AppointmentDate = DateTime.Today,
+                StartTime = new TimeSpan(9, 0, 0),
+                EndTime = new TimeSpan(9, 30, 0),
+                Type = AppointmentType.Consultation,
+                Status = AppointmentStatus.Completed,
+                Reason = "Annual Checkup",
+                ConsultationNotes = "Patient reported mild headaches. Blood pressure slightly elevated.",
+                HasPrescription = true
+            },
+            new Appointment
+            {
+                PatientName = "Michael Chen",
+                PatientPhoto = "https://i.pravatar.cc/150?img=12",
+                PatientAge = 45,
+                AppointmentDate = DateTime.Today,
+                StartTime = new TimeSpan(10, 0, 0),
+                EndTime = new TimeSpan(10, 45, 0),
+                Type = AppointmentType.FollowUp,
+                Status = AppointmentStatus.InProgress,
+                Reason = "Hypertension Follow-up",
+                IsUrgent = true,
+                HasPrescription = false
+            },
+            new Appointment
+            {
+                PatientName = "Emma Wilson",
+                PatientPhoto = "https://i.pravatar.cc/150?img=24",
+                PatientAge = 28,
+                AppointmentDate = DateTime.Today,
+                StartTime = new TimeSpan(14, 0, 0),
+                EndTime = new TimeSpan(14, 30, 0),
+                Type = AppointmentType.Telemedicine,
+                Status = AppointmentStatus.Scheduled,
+                Reason = "Medication Review",
+                HasPrescription = true
+            }
+        };
+        
+        // Load all appointments
+        AllAppointments = new List<Appointment>
+        {
+            new Appointment { 
+                PatientName = "Sarah Johnson", 
+                PatientPhoto = "https://i.pravatar.cc/150?img=8",
+                PatientAge = 34,
+                AppointmentDate = DateTime.Today, 
+                Status = AppointmentStatus.Completed,
+                Type = AppointmentType.Consultation,
+                HasPrescription = true 
+            },
+            new Appointment { 
+                PatientName = "Michael Chen",
+                PatientPhoto = "https://i.pravatar.cc/150?img=12",
+                PatientAge = 45,
+                AppointmentDate = DateTime.Today, 
+                Status = AppointmentStatus.InProgress,
+                Type = AppointmentType.FollowUp,
+                IsUrgent = true 
+            },
+            new Appointment { 
+                PatientName = "Emma Wilson",
+                PatientPhoto = "https://i.pravatar.cc/150?img=24",
+                PatientAge = 28,
+                AppointmentDate = DateTime.Today.AddDays(1), 
+                Status = AppointmentStatus.Scheduled,
+                Type = AppointmentType.Consultation 
+            },
+            new Appointment { 
+                PatientName = "Robert Brown",
+                PatientPhoto = "https://i.pravatar.cc/150?img=32",
+                PatientAge = 52,
+                AppointmentDate = DateTime.Today.AddDays(-1), 
+                Status = AppointmentStatus.Completed, 
+                HasPrescription = true,
+                Type = AppointmentType.FollowUp 
+            }
+        };
+        
+        FilteredAppointments = AllAppointments;
+        
+        // Load sample notifications
+        Notifications = new List<Notification>
+        {
+            new Notification { 
+                Message = "New lab results available for Patient #123", 
+                Time = DateTime.Now.AddMinutes(-15), 
+                IsRead = false,
+                Icon = "fas fa-vial"
+            },
+            new Notification { 
+                Message = "Appointment reminder: Sarah Johnson at 9:00 AM", 
+                Time = DateTime.Now.AddHours(-1), 
+                IsRead = false,
+                Icon = "fas fa-calendar"
+            },
+            new Notification { 
+                Message = "New message from Dr. Anderson", 
+                Time = DateTime.Now.AddHours(-2), 
+                IsRead = true,
+                Icon = "fas fa-comment"
+            }
+        };
+        
+        UnreadNotifications = Notifications.Count(n => !n.IsRead);
+        
+        // Load sample activities
+        RecentActivities = new List<Activity>
+        {
+            new Activity { 
+                Description = "Completed consultation with Michael Chen", 
+                Timestamp = DateTime.Now.AddMinutes(-30),
+                Icon = "fas fa-stethoscope"
+            },
+            new Activity { 
+                Description = "Prescribed medication for Sarah Johnson", 
+                Timestamp = DateTime.Now.AddHours(-1),
+                Icon = "fas fa-prescription"
+            },
+            new Activity { 
+                Description = "Reviewed lab results for Patient #456", 
+                Timestamp = DateTime.Now.AddHours(-2),
+                Icon = "fas fa-microscope"
+            },
+            new Activity { 
+                Description = "Updated medical records for Emma Wilson", 
+                Timestamp = DateTime.Now.AddHours(-3),
+                Icon = "fas fa-file-medical"
+            }
+        };
+    }
+    
+    private void InitializeDoctorAvailability()
+    {
+        doctorAvailability = new DoctorAvailability
+        {
+            Status = "Available",
+            WorkingHours = new List<WorkingDay>
+            {
+                new WorkingDay { Day = "Monday", IsWorking = true, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(17, 0, 0) },
+                new WorkingDay { Day = "Tuesday", IsWorking = true, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(17, 0, 0) },
+                new WorkingDay { Day = "Wednesday", IsWorking = true, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(17, 0, 0) },
+                new WorkingDay { Day = "Thursday", IsWorking = true, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(17, 0, 0) },
+                new WorkingDay { Day = "Friday", IsWorking = true, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(16, 0, 0) },
+                new WorkingDay { Day = "Saturday", IsWorking = false },
+                new WorkingDay { Day = "Sunday", IsWorking = false }
+            }
+        };
+    }
+    
+    // UI Event Handlers
+    private void ToggleSidebar()
+    {
+        isSidebarCollapsed = !isSidebarCollapsed;
+    }
+    
+    private void SetCurrentView(DashboardView view)
+    {
+        currentView = view;
+    }
+    
+    private void ToggleNotifications()
+    {
+        showNotifications = !showNotifications;
+        showProfileMenu = false;
+    }
+    
+    private void ToggleProfileMenu()
+    {
+        showProfileMenu = !showProfileMenu;
+        showNotifications = false;
+    }
+    
+    private void ToggleAvailability()
+    {
+        IsAvailable = !IsAvailable;
+        doctorAvailability.Status = IsAvailable ? "Available" : "Busy";
+        Console.WriteLine($"Doctor availability set to: {doctorAvailability.Status}");
+    }
+    
+    private void MarkAllAsRead()
+    {
+        foreach (var notification in Notifications)
+        {
+            notification.IsRead = true;
+        }
+        UnreadNotifications = 0;
+    }
+    
+    private void ViewAllNotifications()
+    {
+        showNotifications = false;
+    }
+    
+    // Navigation Methods
+    private void GoToProfile()
+    {
+        Navigation.NavigateTo("/doctor/profile");
+        showProfileMenu = false;
+    }
+    
+    private void GoToSettings()
+    {
+        Navigation.NavigateTo("/settings");
+        showProfileMenu = false;
+    }
+    
+    private void ViewSchedule()
+    {
+        SetCurrentView(DashboardView.Appointments);
+        showProfileMenu = false;
+    }
+    
+    private async Task Logout()
+    {
+        await Task.Delay(100);
+        Navigation.NavigateTo("/logout");
+    }
+    
+    // CONSULTATION NOTES METHODS
+    private void AddConsultationNotes(Appointment appointment)
+    {
+        selectedAppointment = appointment;
+        consultationNotes = new ConsultationNotes();
+        showConsultationModal = true;
+    }
+    
+    private void ViewConsultationNotes(Appointment appointment)
+    {
+        selectedAppointment = appointment;
+        consultationNotes = new ConsultationNotes
+        {
+            ChiefComplaint = appointment.ConsultationNotes
+        };
+        showConsultationModal = true;
+    }
+    
+    private void CloseConsultationModal()
+    {
+        showConsultationModal = false;
+        consultationNotes = new ConsultationNotes();
+        selectedAppointment = null;
+    }
+    
+    private void SaveConsultationNotes()
+    {
+        if (selectedAppointment != null)
+        {
+            selectedAppointment.ConsultationNotes = $"{consultationNotes.ChiefComplaint} - {consultationNotes.Diagnosis}";
+            Console.WriteLine($"Consultation notes saved for {selectedAppointment.PatientName}");
+        }
+        CloseConsultationModal();
+    }
+    
+    private void AddConsultationNote()
+    {
+        consultationNotes = new ConsultationNotes();
+        showConsultationModal = true;
+    }
+    
+    // PRESCRIPTION METHODS
+    private void OpenPrescriptionModal()
+    {
+        showPrescriptionModal = true;
+        prescriptionMedicines = new List<Medicine>();
+        prescription = new Prescription
+        {
+            DoctorName = CurrentDoctor.FullName,
+            PrescriptionDate = DateTime.Now
+        };
+    }
+    
+    private void PrescribeForAppointment(Appointment appointment)
+    {
+        selectedAppointment = appointment;
+        prescription = new Prescription
+        {
+            PatientId = appointment.PatientId,
+            PatientName = appointment.PatientName,
+            DoctorName = CurrentDoctor.FullName,
+            Diagnosis = appointment.Reason,
+            PrescriptionDate = DateTime.Now
+        };
+        prescriptionMedicines = new List<Medicine>();
+        showPrescriptionModal = true;
+    }
+    
+    private void ClosePrescriptionModal()
+    {
+        showPrescriptionModal = false;
+        prescriptionMedicines = new List<Medicine>();
+        prescription = new Prescription();
+        selectedAppointment = null;
+    }
+    
+    private void AddNewMedicine()
+    {
+        prescriptionMedicines.Add(new Medicine());
+    }
+    
+    private void RemoveMedicine(int index)
+    {
+        if (index >= 0 && index < prescriptionMedicines.Count)
+        {
+            prescriptionMedicines.RemoveAt(index);
+        }
+    }
+    
+    private void SavePrescription()
+    {
+        if (selectedAppointment != null)
+        {
+            prescription.Medicines = prescriptionMedicines;
+            selectedAppointment.HasPrescription = true;
+            selectedAppointment.Prescription = prescription;
+            
+            Console.WriteLine($"Prescription saved for {selectedAppointment.PatientName}");
+            GeneratePrescriptionPDF(selectedAppointment);
+        }
+        
+        ClosePrescriptionModal();
+    }
+    
+    // GENERATE PRESCRIPTION PDF
+    private async Task GeneratePrescriptionPDF(Appointment? appointment)
+    {
+        if (appointment == null) return;
+        
+        try
+        {
+            string htmlContent = GeneratePrescriptionHTML(appointment);
+            await JS.InvokeVoidAsync("alert", "Prescription PDF generated successfully!");
+            await DownloadPrescriptionPDF(appointment);
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", $"Error generating PDF: {ex.Message}");
+        }
+    }
+    
+    private string GeneratePrescriptionHTML(Appointment appointment)
+    {
+        return $@"
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 40px; }}
+                .header {{ text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; }}
+                .clinic-name {{ font-size: 24px; font-weight: bold; color: #2196f3; }}
+                .prescription-title {{ font-size: 28px; margin: 20px 0; color: #333; }}
+                .patient-info, .doctor-info {{ margin: 20px 0; }}
+                .medicine-table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
+                .medicine-table th, .medicine-table td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+                .signature {{ margin-top: 50px; text-align: right; }}
+                .footer {{ margin-top: 50px; font-size: 12px; color: #666; text-align: center; }}
+            </style>
+        </head>
+        <body>
+            <div class='header'>
+                <div class='clinic-name'>Smart Clinic</div>
+                <div>123 Medical Street, Healthcare City</div>
+                <div>Phone: (123) 456-7890 | www.smartclinic.com</div>
+            </div>
+            
+            <h1 class='prescription-title'>PRESCRIPTION</h1>
+            
+            <div class='patient-info'>
+                <strong>Patient:</strong> {appointment.PatientName}<br>
+                <strong>Age:</strong> {appointment.PatientAge} years<br>
+                <strong>Date:</strong> {DateTime.Now.ToString("MMMM dd, yyyy")}<br>
+                <strong>Diagnosis:</strong> {appointment.Reason}
+            </div>
+            
+            <table class='medicine-table'>
+                <thead>
+                    <tr>
+                        <th>Medicine</th>
+                        <th>Dosage</th>
+                        <th>Frequency</th>
+                        <th>Duration</th>
+                        <th>Instructions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {(appointment.Prescription?.Medicines.Any() == true ? 
+                        string.Join("", appointment.Prescription.Medicines.Select(m => 
+                            $"<tr><td>{m.Name}</td><td>{m.Dosage}</td><td>{m.Frequency}</td><td>{m.Duration}</td><td>{m.Instructions}</td></tr>")) :
+                        "<tr><td colspan='5'>No medicines prescribed</td></tr>")}
+                </tbody>
+            </table>
+            
+            <div class='instructions'>
+                <strong>Additional Instructions:</strong><br>
+                {appointment.Prescription?.AdditionalInstructions ?? "None"}
+            </div>
+            
+            <div class='signature'>
+                <div style='margin-top: 50px;'>
+                    <strong>Dr. {CurrentDoctor.FullName}</strong><br>
+                    {CurrentDoctor.Specialization}<br>
+                    License No: {CurrentDoctor.LicenseNumber}<br>
+                    Date: {DateTime.Now.ToString("MMMM dd, yyyy")}
+                </div>
+            </div>
+            
+            <div class='footer'>
+                This is a computer-generated prescription. Valid for 30 days from date of issue.
+            </div>
+        </body>
+        </html>";
+    }
+    
+    private async Task DownloadPrescriptionPDF(Appointment appointment)
+    {
+        string fileName = $"Prescription_{appointment.PatientName}_{DateTime.Now:yyyyMMdd}.pdf";
+        await JS.InvokeVoidAsync("downloadFile", fileName, "data:application/pdf;base64,");
+    }
+    
+    private async Task GenerateReportPDF()
+    {
+        await JS.InvokeVoidAsync("alert", "Consultation report PDF generated!");
+    }
+    
+    // AVAILABILITY METHODS
+    private void OpenAvailabilitySettings()
+    {
+        showAvailabilityModal = true;
+    }
+    
+    private void CloseAvailabilityModal()
+    {
+        showAvailabilityModal = false;
+    }
+    
+    private void SetAvailabilityStatus(string status)
+    {
+        doctorAvailability.Status = status;
+        IsAvailable = status == "Available";
+    }
+    
+    private void SaveAvailability()
+    {
+        Console.WriteLine($"Availability saved: {doctorAvailability.Status}");
+        CloseAvailabilityModal();
+    }
+    
+    // FILTER METHODS
+    private void ApplyFilters()
+    {
+        FilteredAppointments = AllAppointments
+            .Where(a => a.AppointmentDate >= filterStartDate && a.AppointmentDate <= filterEndDate)
+            .Where(a => string.IsNullOrEmpty(filterStatus) || a.Status.ToString() == filterStatus)
+            .Where(a => string.IsNullOrEmpty(filterPatientName) || 
+                       a.PatientName.Contains(filterPatientName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+    
+    private void ResetFilters()
+    {
+        filterStartDate = DateTime.Today;
+        filterEndDate = DateTime.Today.AddDays(7);
+        filterStatus = "";
+        filterPatientName = "";
+        ApplyFilters();
+    }
+    
+    // OTHER METHODS
+    private void StartAppointment(Appointment appointment)
+    {
+        appointment.Status = AppointmentStatus.InProgress;
+        StateHasChanged();
+    }
+    
+    private void StartConsultation(Appointment appointment)
+    {
+        appointment.Status = AppointmentStatus.InProgress;
+        AddConsultationNotes(appointment);
+    }
+    
+    private void ViewPrescription(Appointment appointment)
+    {
+        if (appointment.Prescription != null)
+        {
+            prescription = appointment.Prescription;
+            prescriptionMedicines = prescription.Medicines;
+            selectedAppointment = appointment;
+            showPrescriptionModal = true;
+        }
+    }
+    
+    private void CreateNewAppointment()
+    {
+        Navigation.NavigateTo("/appointments/new");
+    }
+    
+    private void AddNewConsultation()
+    {
+        consultationNotes = new ConsultationNotes();
+        showConsultationModal = true;
+    }
+    
+    // Quick Action Methods
+    private void OpenQuickAction(string actionType)
+    {
+        switch (actionType)
+        {
+            case "prescription":
+                OpenPrescriptionModal();
+                break;
+            case "lab":
+                RequestLabTest();
+                break;
+            case "note":
+                AddConsultationNote();
+                break;
+        }
+    }
+    
+    private void StartTeleconsult()
+    {
+        SetCurrentView(DashboardView.Telemedicine);
+    }
+    
+    private void CreateNewPatient()
+    {
+        // Implementation
+    }
+    
+    private void RequestLabTest()
+    {
+        Navigation.NavigateTo("/lab-request/new");
+    }
+    
+    private void ScheduleFollowUp()
+    {
+        CreateNewAppointment();
+    }
+    
+    public void Dispose()
+    {
+        // Cleanup
+    }
+}

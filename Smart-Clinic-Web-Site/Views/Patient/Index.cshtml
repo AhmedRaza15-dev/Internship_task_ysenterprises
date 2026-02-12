@@ -1,0 +1,283 @@
+<!-- Views/Dashboard/Index.cshtml -->
+@model Smart_Clinic_Web_site.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Patient Dashboard";
+    Layout = "_Layout";
+}
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="min-h-screen bg-gray-100 p-4 md:p-6">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Patient Dashboard</h1>
+        <p class="text-gray-600">Welcome to Smart Clinic Management System</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Patients</p>
+                    <h3 class="text-3xl font-bold text-gray-800">@Model.TotalPatients</h3>
+                </div>
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <svg class="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Today's Appointments</p>
+                    <h3 class="text-3xl font-bold text-gray-800">@Model.TodayAppointments</h3>
+                </div>
+                <div class="p-3 bg-green-100 rounded-lg">
+                    <svg class="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Doctors</p>
+                    <h3 class="text-3xl font-bold text-gray-800">@Model.TotalDoctors</h3>
+                </div>
+                <div class="p-3 bg-purple-100 rounded-lg">
+                    <svg class="w-8 h-8 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Available Rooms</p>
+                    <h3 class="text-3xl font-bold text-gray-800">@Model.AvailableRooms</h3>
+                </div>
+                <div class="p-3 bg-yellow-100 rounded-lg">
+                    <svg class="w-8 h-8 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Monthly Visits Chart -->
+        <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6">Monthly Patient Visits</h2>
+            <div class="h-80">
+                <canvas id="monthlyVisitsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Department Stats -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6">Department Statistics</h2>
+            <div class="space-y-4">
+                @foreach (var dept in Model.DepartmentStats)
+                {
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-700">@dept.Key</span>
+                            <span class="text-gray-700 font-medium">@dept.Value</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" 
+                                 style="width: @((dept.Value * 100 / Model.DepartmentStats.Values.Max()).ToString())%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Recent Patients -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800">Recent Patients</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Blood Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Visit</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach (var patient in Model.RecentPatients)
+                            {
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <img class="h-10 w-10 rounded-full" src="@patient.ProfileImage" alt="@patient.Name">
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">@patient.Name</div>
+                                                <div class="text-sm text-gray-500">@patient.Gender</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">@patient.Age</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            @patient.BloodType
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        @patient.LastVisit.ToString("MMM dd, yyyy")
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if (patient.Status == "Critical")
+                                        {
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                @patient.Status
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                @patient.Status
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Appointments -->
+        <div>
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800">Upcoming Appointments</h2>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    @foreach (var appointment in Model.UpcomingAppointments)
+                    {
+                        <div class="px-6 py-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-lg font-semibold text-gray-800">@appointment.PatientName</h3>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    @appointment.Status
+                                </span>
+                            </div>
+                            <p class="text-gray-600 mb-1">
+                                <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                </svg>
+                                @appointment.AppointmentTime.ToString("h:mm tt")
+                            </p>
+                            <p class="text-gray-600">
+                                <svg class="w-4 h-4 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                                @appointment.DoctorName - @appointment.Department
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Critical Patients -->
+    <div class="mt-8">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-800 text-red-600">Critical Patients</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+                @foreach (var patient in Model.CriticalPatients)
+                {
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <img class="h-12 w-12 rounded-full" src="@patient.ProfileImage" alt="@patient.Name">
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-900">@patient.Name</h3>
+                                <p class="text-sm text-gray-600">Age: @patient.Age | Blood: @patient.BloodType</p>
+                                <p class="text-sm text-gray-600">Last Visit: @patient.LastVisit.ToString("MMM dd, yyyy")</p>
+                            </div>
+                            <div class="ml-auto">
+                                <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Monthly Visits Chart
+        const monthlyCtx = document.getElementById('monthlyVisitsChart').getContext('2d');
+        const monthlyVisitsChart = new Chart(monthlyCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.MonthlyVisits.Keys)),
+                datasets: [{
+                    label: 'Patient Visits',
+                    data: @Html.Raw(Json.Serialize(Model.MonthlyVisits.Values)),
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
